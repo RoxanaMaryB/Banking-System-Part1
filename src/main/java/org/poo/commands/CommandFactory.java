@@ -3,6 +3,7 @@ package org.poo.commands;
 import org.poo.commands.action.AddAccountCommand;
 import org.poo.commands.action.AddFundsCommand;
 import org.poo.commands.action.CreateCardCommand;
+import org.poo.commands.action.DeleteAccountCommand;
 import org.poo.commands.debug.PrintUsersCommand;
 import org.poo.fileio.CommandInput;
 
@@ -16,6 +17,7 @@ public class CommandFactory {
                     commandInput.getTimestamp());
             case "createCard" -> new CreateCardCommand(commandInput.getAccount(), commandInput.getEmail(),
                     commandInput.getTimestamp());
+            case "deleteAccount" -> new DeleteAccountCommand(commandInput.getAccount(), commandInput.getTimestamp());
             default -> new NoCommand();
         };
     }

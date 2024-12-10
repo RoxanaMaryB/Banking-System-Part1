@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.poo.utils.Utils.resetRandom;
+
 @Data
 public class Bank {
     private static Bank instance;
@@ -32,7 +34,15 @@ public class Bank {
         return instance;
     }
 
+    public void reset() {
+        this.users.clear();
+        this.exchangeRates.clear();
+        resetRandom();
+    }
+
     public void startBank(final ObjectInput inputData, final ArrayNode out, final ObjectMapper objMapper) {
+        reset();
+
         for (UserInput user : inputData.getUsers()) {
             this.users.add(new User(user));
         }
