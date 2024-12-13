@@ -1,8 +1,10 @@
 package org.poo.bank;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter @Setter
 public class SavingsAccount extends Account {
     private double interestRate;
 
