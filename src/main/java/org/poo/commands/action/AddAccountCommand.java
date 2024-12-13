@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.bank.Account;
 import org.poo.bank.Bank;
+import org.poo.bank.SavingsAccount;
 import org.poo.bank.User;
 import org.poo.commands.CommandStrategy;
 import org.poo.utils.Search;
@@ -35,7 +36,10 @@ public class AddAccountCommand implements CommandStrategy, Search {
             return;
         }
         // add account to user
-        Account newAccount = new Account(currency, accountType, timestamp);
+        Account newAccount;
+        if(accountType.equals("savings"))
+            newAccount = new SavingsAccount(currency, timestamp);
+        else newAccount = new Account(currency, accountType, timestamp);
         correctUser.getAccounts().add(newAccount);
     }
 }

@@ -78,13 +78,13 @@ public class PayOnlineCommand implements CommandStrategy, Search {
             if (correctAccount.getBalance() - convertedAmount >= 0) {
                 correctAccount.setBalance(correctAccount.getBalance() - convertedAmount);
             } else {
-                // add error transaction to correctUser's transactions
+                //TODO: add error transaction to correctUser's transactions
             }
         } else {
             if (correctAccount.getBalance() - amount >= 0) {
                 correctAccount.setBalance(correctAccount.getBalance() - amount);
             } else {
-                // add error transaction to correctUser's transactions
+                //TODO: add error transaction to correctUser's transactions
             }
         }
 
