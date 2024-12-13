@@ -8,12 +8,10 @@ public class Exchange {
     private String from;
     private String to;
     private double rate;
-    private int timestamp;
 
-    public Exchange(ExchangeInput exchangeInput) {
-        this.from = exchangeInput.getFrom();
-        this.to = exchangeInput.getTo();
-        this.rate = exchangeInput.getRate();
-        this.timestamp = exchangeInput.getTimestamp();
+    public Exchange(String from, String to, double rate) {
+        this.from = from;
+        this.to = to;
+        this.rate = rate;
     }
 }

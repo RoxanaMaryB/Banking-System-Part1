@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.bank.Account;
 import org.poo.bank.Bank;
-import org.poo.bank.Card;
 import org.poo.bank.User;
 import org.poo.commands.CommandStrategy;
+import org.poo.utils.Search;
 
-public class DeleteAccountCommand implements CommandStrategy {
+import java.util.List;
+
+public class DeleteAccountCommand implements CommandStrategy, Search {
     String accountIBAN;
     int timestamp;
 
@@ -18,15 +20,19 @@ public class DeleteAccountCommand implements CommandStrategy {
         this.timestamp = timestamp;
     }
 
+    @Override
+    public List<User> getUsers() {
+        return Bank.getInstance().getUsers();
+    }
+
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
-        Bank bank = Bank.getInstance();
-        // find IBAN in bank accounts list
+        Account account = findAccountByIBAN(accountIBAN);
         User correctUser = null;
-        for (User user : bank.getUsers()) {
-            for (int i = 0; i < user.getAccounts().size(); i++) {
-                if (user.getAccounts().get(i).getIBAN().equals(accountIBAN)) {
+
+        if (account != null) {
+            for (User user : getUsers()) {
+                if (user.getAccounts().remove(account)) {
                     correctUser = user;
-                    user.getAccounts().remove(i);
                     break;
                 }
             }

@@ -1,9 +1,6 @@
 package org.poo.commands;
 
-import org.poo.commands.action.AddAccountCommand;
-import org.poo.commands.action.AddFundsCommand;
-import org.poo.commands.action.CreateCardCommand;
-import org.poo.commands.action.DeleteAccountCommand;
+import org.poo.commands.action.*;
 import org.poo.commands.debug.PrintUsersCommand;
 import org.poo.fileio.CommandInput;
 
@@ -17,7 +14,15 @@ public class CommandFactory {
                     commandInput.getTimestamp());
             case "createCard" -> new CreateCardCommand(commandInput.getAccount(), commandInput.getEmail(),
                     commandInput.getTimestamp());
+            case "createOneTimeCard" -> new CreateOneTimeCardCommand(commandInput.getAccount(), commandInput.getEmail(),
+                    commandInput.getTimestamp());
+            case "deleteCard" -> new DeleteCardCommand(commandInput.getCardNumber(), commandInput.getTimestamp());
             case "deleteAccount" -> new DeleteAccountCommand(commandInput.getAccount(), commandInput.getTimestamp());
+            case "payOnline" -> new PayOnlineCommand(commandInput.getCardNumber(), commandInput.getAmount(),
+                    commandInput.getCurrency(), commandInput.getDescription(), commandInput.getCommerciant(),
+                    commandInput.getEmail(), commandInput.getTimestamp());
+            case "sendMoney" -> new SendMoneyCommand(commandInput.getAccount(), commandInput.getReceiver(),
+                    commandInput.getAmount(), commandInput.getDescription(), commandInput.getTimestamp());
             default -> new NoCommand();
         };
     }

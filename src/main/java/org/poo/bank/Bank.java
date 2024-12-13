@@ -17,7 +17,7 @@ import java.util.List;
 import static org.poo.utils.Utils.resetRandom;
 
 @Data
-public class Bank {
+public class Bank{
     private static Bank instance;
     private List<User> users;
     private List<Exchange> exchangeRates;
@@ -41,15 +41,13 @@ public class Bank {
     }
 
     public void startBank(final ObjectInput inputData, final ArrayNode out, final ObjectMapper objMapper) {
-        reset();
-
         for (UserInput user : inputData.getUsers()) {
             this.users.add(new User(user));
         }
 
         if(inputData.getExchangeRates() != null) {
             for (ExchangeInput exchange : inputData.getExchangeRates()) {
-                this.exchangeRates.add(new Exchange(exchange));
+                this.exchangeRates.add(new Exchange(exchange.getFrom(), exchange.getTo(), exchange.getRate()));
             }
         }
 
@@ -58,5 +56,7 @@ public class Bank {
             CommandStrategy command = CommandFactory.createCommand(commandInput);
             command.execute(out, objMapper);
         }
+
+        reset();
     }
 }

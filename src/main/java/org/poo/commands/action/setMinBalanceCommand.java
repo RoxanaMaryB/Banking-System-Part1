@@ -10,14 +10,14 @@ import org.poo.utils.Search;
 
 import java.util.List;
 
-public class AddFundsCommand implements CommandStrategy, Search {
+public class setMinBalanceCommand implements CommandStrategy, Search {
     String accountIBAN;
-    double amount;
+    double minBalance;
     int timestamp;
 
-    public AddFundsCommand(String accountIBAN, double amount, int timestamp) {
+    public setMinBalanceCommand(String accountIBAN, double minBalance, int timestamp) {
         this.accountIBAN = accountIBAN;
-        this.amount = amount;
+        this.minBalance = minBalance;
         this.timestamp = timestamp;
     }
 
@@ -26,14 +26,11 @@ public class AddFundsCommand implements CommandStrategy, Search {
         return Bank.getInstance().getUsers();
     }
 
-    public void execute(ArrayNode output, ObjectMapper objectMapper){
+    @Override
+    public void execute(ArrayNode output, ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
-        if (account == null) {
-            System.err.println("Account not found: " + accountIBAN);
-            return;
+        if (account != null) {
+            account.setMinBalance(minBalance);
         }
-
-        double oldBalance = account.getBalance();
-        account.setBalance(oldBalance + amount);
     }
 }
