@@ -32,7 +32,6 @@ public class SendMoneyCommand implements CommandStrategy, Search {
 
     @Override
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
-        User user = findUserByEmail(email);
         Account sender = findAccountByIBAN(senderIBAN);
         Account receiver = findAccountByIBAN(receiverIBAN);
         if(receiver == null) {
