@@ -3,6 +3,8 @@ package org.poo.bank;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data @Builder
 public class Transaction {
     private String card;
@@ -16,5 +18,7 @@ public class Transaction {
     private String description;
     private String commerciant;
     private String email;
+    private String currency;
+    private List<String> involvedAccounts;
     private int timestamp;
 }

@@ -32,6 +32,8 @@ public class CommandFactory {
                     commandInput.getTimestamp());
             case "setAlias" -> new SetAliasCommand(commandInput.getEmail(), commandInput.getAccount(),
                     commandInput.getAlias(), commandInput.getTimestamp());
+            case "splitPayment" -> new SplitPaymentCommand(commandInput.getAccounts(), commandInput.getCurrency(), commandInput.getAmount(),
+                    commandInput.getTimestamp());
             default -> new NoCommand();
         };
     }

@@ -34,6 +34,15 @@ public class PrintTransactionsCommand implements CommandStrategy, Search {
         }
     }
 
+    private void addListOfStrings(ObjectNode node, String fieldName, List<String> values) {
+        if (values != null) {
+            ArrayNode arrayNode = node.putArray(fieldName);
+            for (String value : values) {
+                arrayNode.add(value);
+            }
+        }
+    }
+
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
@@ -59,8 +68,10 @@ public class PrintTransactionsCommand implements CommandStrategy, Search {
             addField(transactionNode, "cardHolder", transaction.getCardHolder());
             addField(transactionNode, "amount", transaction.getAmount());
             addDoubleField(transactionNode, "amount", transaction.getAmountDouble());
+            addField(transactionNode, "currency", transaction.getCurrency());
             addField(transactionNode, "transferType", transaction.getTransferType());
             addField(transactionNode, "commerciant", transaction.getCommerciant());
+            addListOfStrings(transactionNode, "involvedAccounts", transaction.getInvolvedAccounts());
             transactionsArray.add(transactionNode);
         }
         ObjectNode commandOutput = objectMapper.createObjectNode();
