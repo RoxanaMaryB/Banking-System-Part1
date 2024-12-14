@@ -9,7 +9,8 @@ public class CommandFactory {
     public static CommandStrategy createCommand(CommandInput commandInput) {
         return switch (commandInput.getCommand()) {
             case "printUsers" -> new PrintUsersCommand(commandInput.getTimestamp());
-            case "printTransactions" -> new PrintTransactionsCommand(commandInput.getEmail(), commandInput.getTimestamp());
+            case "printTransactions" -> new PrintTransactionsCommand(commandInput.getEmail(),
+                    commandInput.getTimestamp());
             case "addAccount" -> new AddAccountCommand(commandInput.getEmail(), commandInput.getCurrency(),
                     commandInput.getAccountType(), commandInput.getTimestamp());
             case "addFunds" -> new AddFundsCommand(commandInput.getAccount(), commandInput.getAmount(),
@@ -24,10 +25,13 @@ public class CommandFactory {
                     commandInput.getCurrency(), commandInput.getDescription(), commandInput.getCommerciant(),
                     commandInput.getEmail(), commandInput.getTimestamp());
             case "sendMoney" -> new SendMoneyCommand(commandInput.getAccount(), commandInput.getReceiver(),
-                    commandInput.getAmount(), commandInput.getDescription(), commandInput.getEmail(), commandInput.getTimestamp());
+                    commandInput.getAmount(), commandInput.getDescription(), commandInput.getEmail(),
+                    commandInput.getTimestamp());
             case "checkCardStatus" -> new CheckCardStatus(commandInput.getCardNumber(), commandInput.getTimestamp());
             case "setMinBalance" -> new SetMinBalanceCommand(commandInput.getAccount(), commandInput.getMinBalance(),
                     commandInput.getTimestamp());
+            case "setAlias" -> new SetAliasCommand(commandInput.getEmail(), commandInput.getAccount(),
+                    commandInput.getAlias(), commandInput.getTimestamp());
             default -> new NoCommand();
         };
     }

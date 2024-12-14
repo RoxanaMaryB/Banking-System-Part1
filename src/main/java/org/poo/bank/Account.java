@@ -17,6 +17,7 @@ public class Account {
     String type;
     int timestampCreated;
     double minBalance = 0;
+    String alias;
     User user;
 
     public Account(String currency, String type, User user, int timestamp) {
@@ -27,6 +28,7 @@ public class Account {
         this.IBAN = generateIBAN();
         this.user = user;
         this.timestampCreated = timestamp;
+        this.alias = null;
     }
 
     public void updateCardStatus(int timestamp) {
