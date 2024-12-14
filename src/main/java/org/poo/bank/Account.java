@@ -19,7 +19,6 @@ public class Account {
     double minBalance = 0;
     String alias;
     User user;
-    List<Report> reports;
 
     public Account(String currency, String type, User user, int timestamp) {
         this.balance = 0;
