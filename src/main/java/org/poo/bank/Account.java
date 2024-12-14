@@ -30,7 +30,7 @@ public class Account {
     }
 
     public void updateCardStatus(int timestamp) {
-        if (this.getBalance() <= this.getMinBalance()) {
+        if (this.getBalance() <= minBalance) {
             for (Card card : this.getCards()) {
                 card.setStatus("frozen");
             }
@@ -38,7 +38,7 @@ public class Account {
                     .description("You have reached the minimum amount of funds, the card will be frozen")
                     .timestamp(timestamp)
                     .build());
-        } else if (this.getBalance() - this.getMinBalance() <= 30) {
+        } else if (balance - minBalance <= 30) {
             for (Card card : this.getCards()) {
                 card.setStatus("warning");
             }
