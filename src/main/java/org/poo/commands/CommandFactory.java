@@ -25,6 +25,9 @@ public class CommandFactory {
                     commandInput.getEmail(), commandInput.getTimestamp());
             case "sendMoney" -> new SendMoneyCommand(commandInput.getAccount(), commandInput.getReceiver(),
                     commandInput.getAmount(), commandInput.getDescription(), commandInput.getEmail(), commandInput.getTimestamp());
+            case "checkCardStatus" -> new CheckCardStatus(commandInput.getCardNumber(), commandInput.getTimestamp());
+            case "setMinBalance" -> new SetMinBalanceCommand(commandInput.getAccount(), commandInput.getMinBalance(),
+                    commandInput.getTimestamp());
             default -> new NoCommand();
         };
     }

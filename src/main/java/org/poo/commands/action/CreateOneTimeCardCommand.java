@@ -37,7 +37,7 @@ public class CreateOneTimeCardCommand extends CreateCardCommand {
                 return;
             }
             correctUser.logTransaction(Transaction.builder()
-                    .description("New one time card created")
+                    .description("New card created")
                     .accountIBAN(accountIBAN)
                     .card(newCard.getCardNumber())
                     .cardHolder(newCard.getAccount().getUser().getEmail())

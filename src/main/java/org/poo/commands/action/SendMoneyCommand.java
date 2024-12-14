@@ -43,6 +43,7 @@ public class SendMoneyCommand implements CommandStrategy, Search {
             System.err.println("Receiver account not found: " + receiverIBAN);
             return;
         }
+
         if (sender.getBalance() < amount) {
             sender.getUser().logTransaction(Transaction.builder()
                     .description("Insufficient funds")
@@ -56,7 +57,6 @@ public class SendMoneyCommand implements CommandStrategy, Search {
         CurrencyConverter converter = new CurrencyConverter(Bank.getInstance().getExchangeRates());
         double amountInReceiverCurrency = converter.convertCurrency(amount, sender.getCurrency(), receiver.getCurrency());
         receiver.setBalance(receiver.getBalance() + amountInReceiverCurrency);
-        sender.updateCardStatus();
 
         String amountWithCurrencySender = String.format("%.1f %s", amount, sender.getCurrency());
         String amountWithCurrencyReceiver = String.format("%.1f %s", amountInReceiverCurrency, receiver.getCurrency());

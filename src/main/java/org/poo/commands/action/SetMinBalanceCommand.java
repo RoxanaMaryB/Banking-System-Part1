@@ -11,12 +11,12 @@ import org.poo.utils.Search;
 
 import java.util.List;
 
-public class setMinBalanceCommand implements CommandStrategy, Search {
+public class SetMinBalanceCommand implements CommandStrategy, Search {
     String accountIBAN;
     double minBalance;
     int timestamp;
 
-    public setMinBalanceCommand(String accountIBAN, double minBalance, int timestamp) {
+    public SetMinBalanceCommand(String accountIBAN, double minBalance, int timestamp) {
         this.accountIBAN = accountIBAN;
         this.minBalance = minBalance;
         this.timestamp = timestamp;

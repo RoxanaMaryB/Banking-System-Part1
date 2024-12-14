@@ -16,7 +16,7 @@ public class Account {
     String IBAN;
     String type;
     int timestampCreated;
-    double minBalance = Double.NEGATIVE_INFINITY;
+    double minBalance = 0;
     User user;
 
     public Account(String currency, String type, User user, int timestamp) {
@@ -29,15 +29,23 @@ public class Account {
         this.timestampCreated = timestamp;
     }
 
-    public void updateCardStatus() {
+    public void updateCardStatus(int timestamp) {
         if (this.getBalance() <= this.getMinBalance()) {
             for (Card card : this.getCards()) {
                 card.setStatus("frozen");
             }
+            user.logTransaction(Transaction.builder()
+                    .description("You have reached the minimum amount of funds, the card will be frozen")
+                    .timestamp(timestamp)
+                    .build());
         } else if (this.getBalance() - this.getMinBalance() <= 30) {
             for (Card card : this.getCards()) {
                 card.setStatus("warning");
             }
+            user.logTransaction(Transaction.builder()
+                    .description("Warning! You almost reached the minimum amount of funds")
+                    .timestamp(timestamp)
+                    .build());
         }
     }
 

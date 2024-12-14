@@ -45,10 +45,12 @@ public class PayOnlineCommand implements CommandStrategy, Search {
         // find cardNumber in correctUser's accounts
         boolean found = false;
         Account correctAccount = null;
+        Card correctCard = null;
         for (Account account : correctUser.getAccounts()) {
             // find cardNumber in account's cards
             for (int i = 0; i < account.getCards().size(); i++) {
                 if (account.getCards().get(i).getCardNumber().equals(cardNumber)) {
+                    correctCard = account.getCards().get(i);
                     found = true;
                     correctAccount = account;
                     break;
@@ -67,6 +69,15 @@ public class PayOnlineCommand implements CommandStrategy, Search {
 
             commandOutput.put("timestamp", timestamp);
             output.add(commandOutput);
+            return;
+        }
+
+        if (correctCard.getStatus().equals("frozen")) {
+            correctUser.logTransaction(Transaction.builder()
+                    .description("The card is frozen")
+                    .timestamp(timestamp)
+                    .email(email)
+                    .build());
             return;
         }
 
@@ -91,7 +102,6 @@ public class PayOnlineCommand implements CommandStrategy, Search {
             return;
         }
 
-        correctAccount.updateCardStatus();
         correctUser.logTransaction(Transaction.builder()
                 .description("Card payment")
                 .commerciant(commerciant)
