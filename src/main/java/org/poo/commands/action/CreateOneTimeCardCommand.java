@@ -16,7 +16,6 @@ public class CreateOneTimeCardCommand extends CreateCardCommand {
         Card newCard = null;
         if (correctUser == null) {
             System.err.println("User not found: " + email);
-            return;
         } else {
             boolean found = false;
             for (int i = 0; i < correctUser.getAccounts().size(); i++) {
