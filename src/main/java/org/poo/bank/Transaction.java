@@ -1,5 +1,7 @@
 package org.poo.bank;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.Data;
 
@@ -21,4 +23,28 @@ public class Transaction {
     private String currency;
     private List<String> involvedAccounts;
     private int timestamp;
+
+    public void addField(ObjectNode node, String fieldName, String value) {
+        if (value != null) {
+            node.put(fieldName, value);
+        }
+    }
+
+    // who added this is evil
+    public void addDoubleField(ObjectNode node, String fieldName, double value) {
+        if(value != 0) {
+            node.put(fieldName, value);
+        }
+    }
+
+    public void addListOfStrings(ObjectNode node, String fieldName, List<String> values) {
+        if (values != null) {
+            ArrayNode arrayNode = node.putArray(fieldName);
+            for (String value : values) {
+                arrayNode.add(value);
+            }
+        }
+    }
+
+
 }
