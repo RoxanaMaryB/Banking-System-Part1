@@ -9,7 +9,6 @@ public class CreateOneTimeCardCommand extends CreateCardCommand {
         super(accountIBAN, email, timestamp);
     }
 
-    //TODO: MODIFY!!! REPEATING CODE!!!
     @Override
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
         User correctUser = findUserByEmail(email);

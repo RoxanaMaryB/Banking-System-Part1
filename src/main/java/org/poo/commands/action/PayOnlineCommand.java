@@ -81,6 +81,8 @@ public class PayOnlineCommand implements CommandStrategy, Search {
             return;
         }
 
+        correctCard.changeIfOneTime();
+
         CurrencyConverter converter = new CurrencyConverter(Bank.getInstance().getExchangeRates());
 
         boolean insufficientFunds = true;
@@ -106,6 +108,7 @@ public class PayOnlineCommand implements CommandStrategy, Search {
                 .description("Card payment")
                 .commerciant(commerciant)
                 .email(email)
+                .silentIBAN(correctAccount.getIBAN())
                 .amountDouble(convertedAmount)
                 .timestamp(timestamp)
                 .build());

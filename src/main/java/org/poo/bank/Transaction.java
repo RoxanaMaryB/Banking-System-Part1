@@ -23,6 +23,7 @@ public class Transaction {
     private String currency;
     private List<String> involvedAccounts;
     private int timestamp;
+    private String silentIBAN;
 
     public void addField(ObjectNode node, String fieldName, String value) {
         if (value != null) {
@@ -45,6 +46,4 @@ public class Transaction {
             }
         }
     }
-
-
 }

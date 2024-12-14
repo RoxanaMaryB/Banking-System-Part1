@@ -20,4 +20,7 @@ public class Card {
     public void deleteCard() {
         account.getCards().remove(this);
     }
+
+    public void changeIfOneTime() {
+    }
 }

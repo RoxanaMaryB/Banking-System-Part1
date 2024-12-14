@@ -4,6 +4,7 @@ import org.poo.commands.action.*;
 import org.poo.commands.debug.PrintTransactionsCommand;
 import org.poo.commands.debug.PrintUsersCommand;
 import org.poo.commands.debug.ReportCommand;
+import org.poo.commands.debug.SpendingsReportCommand;
 import org.poo.fileio.CommandInput;
 
 public class CommandFactory {
@@ -38,6 +39,8 @@ public class CommandFactory {
                     commandInput.getTimestamp());
             case "report" -> new ReportCommand(commandInput.getStartTimestamp(), commandInput.getEndTimestamp(),
                     commandInput.getAccount(), commandInput.getTimestamp());
+            case "spendingsReport" -> new SpendingsReportCommand(commandInput.getStartTimestamp(),
+                    commandInput.getEndTimestamp(), commandInput.getAccount(), commandInput.getTimestamp());
             default -> new NoCommand();
         };
     }

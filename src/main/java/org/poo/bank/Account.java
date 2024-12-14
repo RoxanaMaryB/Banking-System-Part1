@@ -54,4 +54,5 @@ public class Account {
     public void deleteAccount() {
         user.getAccounts().remove(this);
     }
+
 }

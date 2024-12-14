@@ -15,10 +15,10 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ReportCommand implements CommandStrategy, Search {
-    private final int start;
-    private final int end;
-    private final String accountIBAN;
-    private final int timestamp;
+    protected final int start;
+    protected final int end;
+    protected final String accountIBAN;
+    protected final int timestamp;
 
     public ReportCommand(int start, int end, String accountIBAN, int timestamp) {
         this.start = start;

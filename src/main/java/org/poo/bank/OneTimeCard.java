@@ -4,12 +4,17 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import static org.poo.utils.Utils.generateCardNumber;
+
 @Getter @Setter
 public class OneTimeCard extends Card {
-    boolean used;
 
     public OneTimeCard(Account account) {
         super(account);
-        this.used = false;
+    }
+
+    public void changeIfOneTime() {
+        this.setCardNumber(generateCardNumber());
+
     }
 }
