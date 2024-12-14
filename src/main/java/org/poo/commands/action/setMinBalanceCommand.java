@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.bank.Account;
 import org.poo.bank.Bank;
+import org.poo.bank.Transaction;
 import org.poo.bank.User;
 import org.poo.commands.CommandStrategy;
 import org.poo.utils.Search;
@@ -31,6 +32,13 @@ public class setMinBalanceCommand implements CommandStrategy, Search {
         Account account = findAccountByIBAN(accountIBAN);
         if (account != null) {
             account.setMinBalance(minBalance);
+            account.getUser().logTransaction(Transaction.builder()
+                    .description("Set minimum balance")
+                    .email(account.getUser().getEmail())
+                    .timestamp(timestamp)
+                    .build());
+        } else {
+            System.err.println("Account not found: " + accountIBAN);
         }
     }
 }

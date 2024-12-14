@@ -27,30 +27,30 @@ public class DeleteAccountCommand implements CommandStrategy, Search {
 
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
-        User correctUser = null;
-
-        if (account != null) {
-            for (User user : getUsers()) {
-                if (user.getAccounts().remove(account)) {
-                    correctUser = user;
-                    break;
-                }
+        boolean fails = false;
+        if(account == null) {
+            fails = true;
+        } else  {
+            User user = account.getUser();
+            if(user == null) {
+                fails = true;
+            }
+            if(account.getBalance() != 0) {
+                fails = true;
             }
         }
-
         ObjectNode commandOutput = objectMapper.createObjectNode();
         commandOutput.put("command", "deleteAccount");
-
         ObjectNode deletionState = objectMapper.createObjectNode();
-        if(correctUser == null)
-            deletionState.put("fail", "Account not found");
-        else
+        if(fails)
+            deletionState.put("error", "Account couldn't be deleted - see org.poo.transactions for details");
+        else {
+            account.deleteAccount();
             deletionState.put("success", "Account deleted");
+        }
         deletionState.put("timestamp", timestamp);
         commandOutput.set("output", deletionState);
-
         commandOutput.put("timestamp", timestamp);
-
         output.add(commandOutput);
     }
 }

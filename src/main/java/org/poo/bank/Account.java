@@ -1,12 +1,14 @@
 package org.poo.bank;
 
-import lombok.Data;
+import lombok.Setter;
+import lombok.Getter;
+
 import java.util.List;
 import java.util.ArrayList;
 
 import static org.poo.utils.Utils.generateIBAN;
 
-@Data
+@Getter @Setter
 public class Account {
     double balance;
     List<Card> cards;
@@ -15,13 +17,15 @@ public class Account {
     String type;
     int timestampCreated;
     double minBalance = Double.NEGATIVE_INFINITY;
+    User user;
 
-    public Account(String currency, String type, int timestamp) {
+    public Account(String currency, String type, User user, int timestamp) {
         this.balance = 0;
         this.cards = new ArrayList<>();
         this.currency = currency;
         this.type = type;
         this.IBAN = generateIBAN();
+        this.user = user;
         this.timestampCreated = timestamp;
     }
 
@@ -35,5 +39,9 @@ public class Account {
                 card.setStatus("warning");
             }
         }
+    }
+
+    public void deleteAccount() {
+        user.getAccounts().remove(this);
     }
 }

@@ -72,22 +72,32 @@ public class PayOnlineCommand implements CommandStrategy, Search {
 
         CurrencyConverter converter = new CurrencyConverter(Bank.getInstance().getExchangeRates());
 
-        //check if the currency is the same as the account's currency
+        boolean insufficientFunds = true;
+        double convertedAmount = amount;
         if (!correctAccount.getCurrency().equals(currency)) {
-            double convertedAmount = converter.convertCurrency(amount, currency, correctAccount.getCurrency());
-            if (correctAccount.getBalance() - convertedAmount >= 0) {
-                correctAccount.setBalance(correctAccount.getBalance() - convertedAmount);
-            } else {
-                //TODO: add error transaction to correctUser's transactions
-            }
-        } else {
-            if (correctAccount.getBalance() - amount >= 0) {
-                correctAccount.setBalance(correctAccount.getBalance() - amount);
-            } else {
-                //TODO: add error transaction to correctUser's transactions
-            }
+            convertedAmount = converter.convertCurrency(amount, currency, correctAccount.getCurrency());
+        }
+        if (correctAccount.getBalance() - convertedAmount >= 0) {
+            correctAccount.setBalance(correctAccount.getBalance() - convertedAmount);
+            insufficientFunds = false;
+        }
+
+        if (insufficientFunds) {
+            correctUser.logTransaction(Transaction.builder()
+                    .description("Insufficient funds")
+                    .email(email)
+                    .timestamp(timestamp)
+                    .build());
+            return;
         }
 
         correctAccount.updateCardStatus();
+        correctUser.logTransaction(Transaction.builder()
+                .description("Card payment")
+                .commerciant(commerciant)
+                .email(email)
+                .amountDouble(convertedAmount)
+                .timestamp(timestamp)
+                .build());
     }
 }

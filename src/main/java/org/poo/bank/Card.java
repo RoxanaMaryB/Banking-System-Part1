@@ -1,16 +1,23 @@
 package org.poo.bank;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import static org.poo.utils.Utils.generateCardNumber;
 
-@Data
+@Getter @Setter
 public class Card {
     String cardNumber;
     String status;
+    Account account;
 
-    public Card() {
+    public Card(Account account) {
         this.cardNumber = generateCardNumber();
+        this.account = account;
         this.status = "active";
+    }
+
+    public void deleteCard() {
+        account.getCards().remove(this);
     }
 }

@@ -8,8 +8,8 @@ import lombok.Setter;
 public class OneTimeCard extends Card {
     boolean used;
 
-    public OneTimeCard() {
-        super();
+    public OneTimeCard(Account account) {
+        super(account);
         this.used = false;
     }
 }

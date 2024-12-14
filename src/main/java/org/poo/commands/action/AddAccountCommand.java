@@ -2,10 +2,7 @@ package org.poo.commands.action;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.bank.Account;
-import org.poo.bank.Bank;
-import org.poo.bank.SavingsAccount;
-import org.poo.bank.User;
+import org.poo.bank.*;
 import org.poo.commands.CommandStrategy;
 import org.poo.utils.Search;
 
@@ -35,11 +32,15 @@ public class AddAccountCommand implements CommandStrategy, Search {
             System.err.println("User not found: " + email);
             return;
         }
-        // add account to user
         Account newAccount;
         if(accountType.equals("savings"))
-            newAccount = new SavingsAccount(currency, timestamp);
-        else newAccount = new Account(currency, accountType, timestamp);
+            newAccount = new SavingsAccount(currency, correctUser, timestamp);
+        else newAccount = new Account(currency, accountType, correctUser, timestamp);
         correctUser.getAccounts().add(newAccount);
+        correctUser.logTransaction(Transaction.builder()
+                .description("New account created")
+                .email(email)
+                .timestamp(timestamp)
+                .build());
     }
 }

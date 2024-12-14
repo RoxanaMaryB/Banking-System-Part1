@@ -37,6 +37,9 @@ public class Bank{
     public void reset() {
         this.users.clear();
         this.exchangeRates.clear();
+        for (User user : this.users) {
+            user.clearTransactions();
+        }
         resetRandom();
     }
 

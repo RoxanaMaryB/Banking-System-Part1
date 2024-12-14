@@ -3,11 +3,13 @@ package org.poo.commands.action;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.bank.Bank;
-import org.poo.bank.User;
+import org.poo.bank.*;
 import org.poo.commands.CommandStrategy;
+import org.poo.utils.Search;
 
-public class DeleteCardCommand implements CommandStrategy {
+import java.util.List;
+
+public class DeleteCardCommand implements CommandStrategy, Search {
     String cardNumber;
     int timestamp;
 
@@ -16,24 +18,35 @@ public class DeleteCardCommand implements CommandStrategy {
         this.timestamp = timestamp;
     }
 
+    @Override
+    public List<User> getUsers() {
+        return Bank.getInstance().getUsers();
+    }
+
+    @Override
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
-        Bank bank = Bank.getInstance();
-        // find card in bank cards list
-        User correctUser = null;
-        for (User user : bank.getUsers()) {
-            for (int i = 0; i < user.getAccounts().size(); i++) {
-                for (int j = 0; j < user.getAccounts().get(i).getCards().size(); j++) {
-                    if (user.getAccounts().get(i).getCards().get(j).getCardNumber().equals(cardNumber)) {
-                        correctUser = user;
-                        user.getAccounts().get(i).getCards().remove(j);
-                        break;
-                    }
-                }
-                if(correctUser != null)
-                    break;
+        Card card = findCardByNumber(cardNumber);
+        if (card != null) {
+            Account account = card.getAccount();
+            User user = account.getUser();
+            card.deleteCard();
+
+            if (user == null) {
+                System.err.println("User not found for card: " + cardNumber);
+                return;
             }
-            if(correctUser != null)
-                break;
+
+            String email = user.getEmail();
+            user.logTransaction(Transaction.builder()
+                    .accountIBAN(account.getIBAN())
+                    .card(cardNumber)
+                    .cardHolder(card.getAccount().getUser().getEmail())
+                    .description("The card has been destroyed")
+                    .email(email)
+                    .timestamp(timestamp)
+                    .build());
+        } else {
+            System.err.println("Card not found: " + cardNumber);
         }
     }
 }
