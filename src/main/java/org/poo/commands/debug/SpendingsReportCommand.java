@@ -7,7 +7,6 @@ import org.poo.bank.Account;
 import org.poo.bank.Commerciant;
 import org.poo.bank.Transaction;
 import org.poo.bank.User;
-import org.poo.utils.TransactionsUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,27 +23,36 @@ public class SpendingsReportCommand extends ReportCommand {
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
         if (account == null) {
-            System.out.println("Account not found");
+            ObjectNode commandOutput = objectMapper.createObjectNode();
+            commandOutput.put("command", "spendingsReport");
+            noAccountFound(output, objectMapper, commandOutput);
             return;
         }
         User user = account.getUser();
         if (user == null) {
-            System.out.println("User not found");
+            ObjectNode commandOutput = objectMapper.createObjectNode();
+            commandOutput.put("command", "spendingsReport");
+            noUserFound(output, objectMapper, commandOutput);
             return;
         }
-        List<Transaction> transactions = user.getTransactions();
-        transactions.sort(Comparator.comparingInt(Transaction::getTimestamp));
-        ObjectNode report = objectMapper.createObjectNode();
-        report.put("IBAN", account.getIBAN());
-        report.put("balance", account.getBalance());
-        report.put("currency", account.getCurrency());
-        ArrayNode transactionsArray = objectMapper.createArrayNode();
+        ObjectNode commandOutput = objectMapper.createObjectNode();
+        commandOutput.put("command", "spendingsReport");
+        commandOutput.set("output", formReport(objectMapper, account, user.getTransactions()));
+        commandOutput.put("timestamp", timestamp);
+        output.add(commandOutput);
+    }
+
+    public boolean checkValidTransaction(Transaction transaction) {
+        return transaction.getSilentIBAN() != null && transaction.getSilentIBAN().equals(accountIBAN) &&
+                transaction.getTimestamp() >= start && transaction.getTimestamp() <= end &&
+                transaction.getDescription().equals("Card payment");
+    }
+
+    @Override
+    public ObjectNode formReport(ObjectMapper objectMapper, Account account, List<Transaction> transactions) {
+        ObjectNode report = super.formReport(objectMapper, account, transactions);
         for (Transaction transaction : transactions) {
-            if (transaction.getSilentIBAN() != null && transaction.getSilentIBAN().equals(accountIBAN) &&
-                    transaction.getTimestamp() >= start && transaction.getTimestamp() <= end &&
-                    transaction.getDescription().equals("Card payment")) {
-                ObjectNode transactionNode = TransactionsUtils.createTransactionNode(objectMapper, transaction);
-                transactionsArray.add(transactionNode);
+            if (checkValidTransaction(transaction)) {
                 boolean found = false;
                 for (Commerciant c : commerciants) {
                     if (c.getName().equals(transaction.getCommerciant())) {
@@ -59,7 +67,6 @@ public class SpendingsReportCommand extends ReportCommand {
                 }
             }
         }
-        report.set("transactions", transactionsArray);
         ArrayNode commerciantsArray = objectMapper.createArrayNode();
         commerciants.sort(Comparator.comparing(Commerciant::getName));
         for (Commerciant commerciant : commerciants) {
@@ -69,10 +76,6 @@ public class SpendingsReportCommand extends ReportCommand {
             commerciantsArray.add(commerciantNode);
         }
         report.set("commerciants", commerciantsArray);
-        ObjectNode commandOutput = objectMapper.createObjectNode();
-        commandOutput.put("command", "spendingsReport");
-        commandOutput.set("output", report);
-        commandOutput.put("timestamp", timestamp);
-        output.add(commandOutput);
+        return report;
     }
 }

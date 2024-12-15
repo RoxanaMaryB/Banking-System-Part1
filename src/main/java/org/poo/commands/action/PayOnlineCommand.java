@@ -41,7 +41,6 @@ public class PayOnlineCommand implements CommandStrategy, Search {
             System.err.println("User not found: " + email);
             return;
         }
-
         // find cardNumber in correctUser's accounts
         boolean found = false;
         Account correctAccount = null;
@@ -57,21 +56,12 @@ public class PayOnlineCommand implements CommandStrategy, Search {
                 }
             }
         }
-
         if (!found) { // add error transaction to correctUser's transactions
             ObjectNode commandOutput = objectMapper.createObjectNode();
             commandOutput.put("command", "payOnline");
-
-            ObjectNode outputNode = objectMapper.createObjectNode();
-            outputNode.put("description", "Card not found");
-            outputNode.put("timestamp", timestamp);
-            commandOutput.set("output", outputNode);
-
-            commandOutput.put("timestamp", timestamp);
-            output.add(commandOutput);
+            Card.cardNotFound(output, objectMapper, commandOutput, timestamp);
             return;
         }
-
         if (correctCard.getStatus().equals("frozen")) {
             correctUser.logTransaction(Transaction.builder()
                     .description("The card is frozen")
@@ -80,11 +70,8 @@ public class PayOnlineCommand implements CommandStrategy, Search {
                     .build());
             return;
         }
-
         correctCard.changeIfOneTime();
-
         CurrencyConverter converter = new CurrencyConverter(Bank.getInstance().getExchangeRates());
-
         boolean insufficientFunds = true;
         double convertedAmount = amount;
         if (!correctAccount.getCurrency().equals(currency)) {
@@ -94,7 +81,6 @@ public class PayOnlineCommand implements CommandStrategy, Search {
             correctAccount.setBalance(correctAccount.getBalance() - convertedAmount);
             insufficientFunds = false;
         }
-
         if (insufficientFunds) {
             correctUser.logTransaction(Transaction.builder()
                     .description("Insufficient funds")
@@ -103,7 +89,6 @@ public class PayOnlineCommand implements CommandStrategy, Search {
                     .build());
             return;
         }
-
         correctUser.logTransaction(Transaction.builder()
                 .description("Card payment")
                 .commerciant(commerciant)

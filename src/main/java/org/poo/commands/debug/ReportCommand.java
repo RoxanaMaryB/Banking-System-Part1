@@ -36,15 +36,48 @@ public class ReportCommand implements CommandStrategy, Search {
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
         if (account == null) {
-            System.out.println("Account not found");
+            ObjectNode commandOutput = objectMapper.createObjectNode();
+            commandOutput.put("command", "report");
+            noAccountFound(output, objectMapper, commandOutput);
             return;
         }
         User user = account.getUser();
         if (user == null) {
-            System.out.println("User not found");
+            ObjectNode commandOutput = objectMapper.createObjectNode();
+            commandOutput.put("command", "report");
+            noUserFound(output, objectMapper, commandOutput);
             return;
         }
-        List<Transaction> transactions = user.getTransactions();
+        ObjectNode commandOutput = objectMapper.createObjectNode();
+        commandOutput.put("command", "report");
+        commandOutput.set("output", formReport(objectMapper, account, user.getTransactions()));
+        commandOutput.put("timestamp", timestamp);
+        output.add(commandOutput);
+    }
+
+    public void noAccountFound(ArrayNode output, ObjectMapper objectMapper, ObjectNode commandOutput) {
+        ObjectNode noAccount = objectMapper.createObjectNode();
+        noAccount.put("description", "Account not found");
+        noAccount.put("timestamp", timestamp);
+        commandOutput.set("output", noAccount);
+        commandOutput.put("timestamp", timestamp);
+        output.add(commandOutput);
+    }
+
+    public void noUserFound(ArrayNode output, ObjectMapper objectMapper, ObjectNode commandOutput) {
+        ObjectNode noUser = objectMapper.createObjectNode();
+        noUser.put("description", "User not found");
+        noUser.put("timestamp", timestamp);
+        commandOutput.set("output", noUser);
+        commandOutput.put("timestamp", timestamp);
+        output.add(commandOutput);
+    }
+
+    public boolean checkValidTransaction(Transaction transaction) {
+        return transaction.getTimestamp() >= start && transaction.getTimestamp() <= end;
+    }
+
+    public ObjectNode formReport(ObjectMapper objectMapper, Account account, List<Transaction> transactions) {
         transactions.sort(Comparator.comparingInt(Transaction::getTimestamp));
         ObjectNode report = objectMapper.createObjectNode();
         report.put("IBAN", account.getIBAN());
@@ -52,17 +85,13 @@ public class ReportCommand implements CommandStrategy, Search {
         report.put("currency", account.getCurrency());
         ArrayNode transactionsArray = objectMapper.createArrayNode();
         for (Transaction transaction : transactions) {
-            if (transaction.getTimestamp() >= start && transaction.getTimestamp() <= end) {
+            if (checkValidTransaction(transaction)) {
                 ObjectNode transactionNode = TransactionsUtils.createTransactionNode(objectMapper, transaction);
                 transactionsArray.add(transactionNode);
             }
         }
         report.set("transactions", transactionsArray);
-        ObjectNode commandOutput = objectMapper.createObjectNode();
-        commandOutput.put("command", "report");
-        commandOutput.set("output", report);
-        commandOutput.put("timestamp", timestamp);
-        output.add(commandOutput);
+        return report;
     }
 
 }

@@ -28,16 +28,10 @@ public class CheckCardStatus implements CommandStrategy, Search {
 
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
         Card card = findCardByNumber(cardNumber);
-
         if (card == null) {
             ObjectNode commandOutput = objectMapper.createObjectNode();
             commandOutput.put("command", "checkCardStatus");
-            ObjectNode outputNode = objectMapper.createObjectNode();
-            outputNode.put("description", "Card not found");
-            outputNode.put("timestamp", timestamp);
-            commandOutput.set("output", outputNode);
-            commandOutput.put("timestamp", timestamp);
-            output.add(commandOutput);
+            Card.cardNotFound(output, objectMapper, commandOutput, timestamp);
             return;
         }
         if(!card.getStatus().equals("frozen")) {
@@ -54,6 +48,5 @@ public class CheckCardStatus implements CommandStrategy, Search {
                     .email(card.getAccount().getUser().getEmail())
                     .build());
         }
-
     }
 }
