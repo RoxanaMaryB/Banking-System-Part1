@@ -39,14 +39,13 @@ public class CheckCardStatus implements CommandStrategy, Search {
             String description;
             if (card.getStatus().equals("frozen")) {
                 description = "You have reached the minimum amount of funds, the card will be frozen";
-            } else {
-                description = "Card is active";
+                card.getAccount().getUser().logTransaction(Transaction.builder()
+                        .description(description)
+                        .timestamp(timestamp)
+                        .email(card.getAccount().getUser().getEmail())
+                        .silentIBAN(card.getAccount().getIBAN())
+                        .build());
             }
-            card.getAccount().getUser().logTransaction(Transaction.builder()
-                    .description(description)
-                    .timestamp(timestamp)
-                    .email(card.getAccount().getUser().getEmail())
-                    .build());
         }
     }
 }

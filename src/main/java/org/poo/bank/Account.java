@@ -39,6 +39,7 @@ public class Account {
             user.logTransaction(Transaction.builder()
                     .description("You have reached the minimum amount of funds, the card will be frozen")
                     .timestamp(timestamp)
+                    .silentIBAN(IBAN)
                     .build());
         } else if (balance - minBalance <= 30) {
             for (Card card : this.getCards()) {
@@ -47,6 +48,7 @@ public class Account {
             user.logTransaction(Transaction.builder()
                     .description("Warning! You almost reached the minimum amount of funds")
                     .timestamp(timestamp)
+                    .silentIBAN(IBAN)
                     .build());
         }
     }

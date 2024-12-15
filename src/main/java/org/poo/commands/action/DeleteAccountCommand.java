@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.bank.Account;
 import org.poo.bank.Bank;
+import org.poo.bank.Transaction;
 import org.poo.bank.User;
 import org.poo.commands.CommandStrategy;
 import org.poo.utils.Search;
@@ -27,13 +28,14 @@ public class DeleteAccountCommand implements CommandStrategy, Search {
 
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
+        User user = null;
         boolean fails = false;
         if(account == null) {
-            fails = true;
+            return;
         } else  {
-            User user = account.getUser();
+            user = account.getUser();
             if(user == null) {
-                fails = true;
+                return;
             }
             if(account.getBalance() != 0) {
                 fails = true;
@@ -42,9 +44,15 @@ public class DeleteAccountCommand implements CommandStrategy, Search {
         ObjectNode commandOutput = objectMapper.createObjectNode();
         commandOutput.put("command", "deleteAccount");
         ObjectNode deletionState = objectMapper.createObjectNode();
-        if(fails)
+        if(fails) {
             deletionState.put("error", "Account couldn't be deleted - see org.poo.transactions for details");
-        else {
+            user.logTransaction(Transaction.builder()
+                    .description("Account couldn't be deleted - there are funds remaining")
+                    .email(user.getEmail())
+                    .timestamp(timestamp)
+                    .silentIBAN(accountIBAN)
+                    .build());
+        } else {
             account.deleteAccount();
             deletionState.put("success", "Account deleted");
         }

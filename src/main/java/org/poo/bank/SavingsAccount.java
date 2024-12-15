@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter @Setter
 public class SavingsAccount extends Account {
-    private double interestRate;
+    private double interestRate = 0;
 
     public SavingsAccount(String currency, User user, int timestamp) {
         super(currency, "savings", user, timestamp);

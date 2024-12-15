@@ -24,6 +24,7 @@ public class Transaction {
     private List<String> involvedAccounts;
     private int timestamp;
     private String silentIBAN;
+    private String error;
 
     public void addField(ObjectNode node, String fieldName, String value) {
         if (value != null) {

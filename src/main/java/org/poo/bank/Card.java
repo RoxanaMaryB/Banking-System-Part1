@@ -24,7 +24,7 @@ public class Card {
         account.getCards().remove(this);
     }
 
-    public void changeIfOneTime() {
+    public void changeIfOneTime(int timestamp) {
     }
 
     public static void cardNotFound(ArrayNode output, ObjectMapper objectMapper,

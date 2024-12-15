@@ -58,6 +58,7 @@ public class CreateCardCommand implements CommandStrategy, Search {
                 .cardHolder(newCard.getAccount().getUser().getEmail())
                 .email(email)
                 .timestamp(timestamp)
+                .silentIBAN(accountIBAN)
                 .build());
     }
 }

@@ -37,14 +37,19 @@ public class SpendingsReportCommand extends ReportCommand {
         }
         ObjectNode commandOutput = objectMapper.createObjectNode();
         commandOutput.put("command", "spendingsReport");
-        commandOutput.set("output", formReport(objectMapper, account, user.getTransactions()));
+        if(account.getType().equals("savings")) {
+            ObjectNode result = objectMapper.createObjectNode();
+            result.put("error", "This kind of report is not supported for a saving account");
+            commandOutput.set("output", result);
+        } else {
+            commandOutput.set("output", formReport(objectMapper, account, user.getTransactions()));
+        }
         commandOutput.put("timestamp", timestamp);
         output.add(commandOutput);
     }
 
     public boolean checkValidTransaction(Transaction transaction) {
-        return transaction.getSilentIBAN() != null && transaction.getSilentIBAN().equals(accountIBAN) &&
-                transaction.getTimestamp() >= start && transaction.getTimestamp() <= end &&
+        return super.checkValidTransaction(transaction) &&
                 transaction.getDescription().equals("Card payment");
     }
 

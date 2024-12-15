@@ -20,6 +20,7 @@ public class TransactionsUtils {
         transaction.addField(transactionNode, "transferType", transaction.getTransferType());
         transaction.addField(transactionNode, "commerciant", transaction.getCommerciant());
         transaction.addListOfStrings(transactionNode, "involvedAccounts", transaction.getInvolvedAccounts());
+        transaction.addField(transactionNode, "error", transaction.getError());
         return transactionNode;
     }
 }

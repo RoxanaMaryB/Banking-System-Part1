@@ -70,7 +70,6 @@ public class PayOnlineCommand implements CommandStrategy, Search {
                     .build());
             return;
         }
-        correctCard.changeIfOneTime();
         CurrencyConverter converter = new CurrencyConverter(Bank.getInstance().getExchangeRates());
         boolean insufficientFunds = true;
         double convertedAmount = amount;
@@ -97,5 +96,6 @@ public class PayOnlineCommand implements CommandStrategy, Search {
                 .amountDouble(convertedAmount)
                 .timestamp(timestamp)
                 .build());
+        correctCard.changeIfOneTime(timestamp);
     }
 }

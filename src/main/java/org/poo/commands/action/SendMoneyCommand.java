@@ -51,6 +51,7 @@ public class SendMoneyCommand implements CommandStrategy, Search {
                     .description("Insufficient funds")
                     .email(email)
                     .timestamp(timestamp)
+                    .silentIBAN(senderIBAN)
                     .build());
             return;
         }
@@ -60,8 +61,8 @@ public class SendMoneyCommand implements CommandStrategy, Search {
         double amountInReceiverCurrency = converter.convertCurrency(amount, sender.getCurrency(), receiver.getCurrency());
         receiver.setBalance(receiver.getBalance() + amountInReceiverCurrency);
 
-        String amountWithCurrencySender = String.format("%.1f %s", amount, sender.getCurrency());
-        String amountWithCurrencyReceiver = String.format("%.1f %s", amountInReceiverCurrency, receiver.getCurrency());
+        String amountWithCurrencySender = amount + " " + sender.getCurrency();
+        String amountWithCurrencyReceiver = amountInReceiverCurrency + " " + receiver.getCurrency();
 
         sender.getUser().logTransaction(Transaction.builder()
                 .description(description)
@@ -71,6 +72,7 @@ public class SendMoneyCommand implements CommandStrategy, Search {
                 .amount(amountWithCurrencySender)
                 .transferType("sent")
                 .timestamp(timestamp)
+                .silentIBAN(senderIBAN)
                 .build());
 
 
@@ -82,6 +84,7 @@ public class SendMoneyCommand implements CommandStrategy, Search {
                 .amount(amountWithCurrencyReceiver)
                 .transferType("received")
                 .timestamp(timestamp)
+                .silentIBAN(receiverIBAN)
                 .build());
     }
 }

@@ -44,6 +44,7 @@ public class DeleteCardCommand implements CommandStrategy, Search {
                     .description("The card has been destroyed")
                     .email(email)
                     .timestamp(timestamp)
+                    .silentIBAN(account.getIBAN())
                     .build());
         } else {
             System.err.println("Card not found: " + cardNumber);

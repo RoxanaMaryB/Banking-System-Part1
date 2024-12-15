@@ -26,7 +26,8 @@ public class AddFundsCommand implements CommandStrategy, Search {
         return Bank.getInstance().getUsers();
     }
 
-    public void execute(ArrayNode output, ObjectMapper objectMapper){
+    @Override
+    public void execute(ArrayNode output, ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
         if (account == null) {
             System.err.println("Account not found: " + accountIBAN);

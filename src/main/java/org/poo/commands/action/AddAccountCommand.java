@@ -41,6 +41,7 @@ public class AddAccountCommand implements CommandStrategy, Search {
                 .description("New account created")
                 .email(email)
                 .timestamp(timestamp)
+                .silentIBAN(newAccount.getIBAN())
                 .build());
     }
 }

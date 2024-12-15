@@ -36,6 +36,7 @@ public class SetMinBalanceCommand implements CommandStrategy, Search {
                     .description("Set minimum balance")
                     .email(account.getUser().getEmail())
                     .timestamp(timestamp)
+                    .silentIBAN(accountIBAN)
                     .build());
         } else {
             System.err.println("Account not found: " + accountIBAN);

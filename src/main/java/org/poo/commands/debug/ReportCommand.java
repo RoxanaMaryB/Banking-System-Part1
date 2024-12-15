@@ -74,7 +74,8 @@ public class ReportCommand implements CommandStrategy, Search {
     }
 
     public boolean checkValidTransaction(Transaction transaction) {
-        return transaction.getTimestamp() >= start && transaction.getTimestamp() <= end;
+        return transaction.getSilentIBAN() != null && transaction.getSilentIBAN().equals(accountIBAN) &&
+                transaction.getTimestamp() >= start && transaction.getTimestamp() <= end;
     }
 
     public ObjectNode formReport(ObjectMapper objectMapper, Account account, List<Transaction> transactions) {

@@ -41,6 +41,7 @@ public class CreateOneTimeCardCommand extends CreateCardCommand {
                     .cardHolder(newCard.getAccount().getUser().getEmail())
                     .email(email)
                     .timestamp(timestamp)
+                    .silentIBAN(accountIBAN)
                     .build());
         }
     }

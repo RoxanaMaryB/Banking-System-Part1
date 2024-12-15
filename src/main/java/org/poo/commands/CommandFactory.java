@@ -41,6 +41,9 @@ public class CommandFactory {
                     commandInput.getAccount(), commandInput.getTimestamp());
             case "spendingsReport" -> new SpendingsReportCommand(commandInput.getStartTimestamp(),
                     commandInput.getEndTimestamp(), commandInput.getAccount(), commandInput.getTimestamp());
+            case "addInterest" -> new AddInterestCommand(commandInput.getAccount(), commandInput.getTimestamp());
+            case "changeInterestRate" -> new ChangeInterestRateCommand(commandInput.getAccount(),
+                    commandInput.getInterestRate(), commandInput.getTimestamp());
             default -> new NoCommand();
         };
     }
