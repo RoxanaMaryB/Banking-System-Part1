@@ -28,7 +28,7 @@ public class DeleteAccountCommand implements CommandStrategy, Search {
 
     public void execute(ArrayNode output, ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
-        User user = null;
+        User user;
         boolean fails = false;
         if(account == null) {
             return;
