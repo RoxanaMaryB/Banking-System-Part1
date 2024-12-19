@@ -17,7 +17,7 @@ import java.util.List;
 import static org.poo.utils.Utils.resetRandom;
 
 @Data
-public class Bank {
+public final class Bank {
     private static Bank instance;
     private List<User> users;
     private List<Exchange> exchangeRates;
@@ -27,6 +27,10 @@ public class Bank {
         this.exchangeRates = new ArrayList<>();
     }
 
+    /**
+     * Singleton pattern
+     * @return
+     */
     public static Bank getInstance() {
         if (instance == null) {
             instance = new Bank();
@@ -34,29 +38,45 @@ public class Bank {
         return instance;
     }
 
+    /**
+     * Reset the bank to its initial state after each test
+     */
     public void reset() {
         this.users.clear();
         this.exchangeRates.clear();
+        for (User user : this.users) {
+            user.clearTransactions();
+        }
         resetRandom();
+        CurrencyConverter.resetInstance();
     }
 
-    public void startBank(final ObjectInput inputData, final ArrayNode out, final ObjectMapper objMapper) {
-        reset();
-
+    /**
+     * This method starts the bank with the given input data, initializes the users and exchange
+     * rates, goes through each command, creates the command with the factory pattern and executes
+     * it using the strategy pattern
+     * @param inputData
+     * @param out
+     * @param objMapper
+     */
+    public void startBank(final ObjectInput inputData, final ArrayNode out,
+                          final ObjectMapper objMapper) {
         for (UserInput user : inputData.getUsers()) {
             this.users.add(new User(user));
         }
 
-        if(inputData.getExchangeRates() != null) {
+        if (inputData.getExchangeRates() != null) {
             for (ExchangeInput exchange : inputData.getExchangeRates()) {
-                this.exchangeRates.add(new Exchange(exchange));
+                this.exchangeRates.add(new Exchange(exchange.getFrom(), exchange.getTo(),
+                        exchange.getRate()));
             }
         }
 
-        // create a factory for the commands
         for (CommandInput commandInput : inputData.getCommands()) {
             CommandStrategy command = CommandFactory.createCommand(commandInput);
             command.execute(out, objMapper);
         }
+
+        reset();
     }
 }

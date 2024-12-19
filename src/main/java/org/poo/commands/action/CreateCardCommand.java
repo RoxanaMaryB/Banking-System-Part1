@@ -2,49 +2,77 @@ package org.poo.commands.action;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.bank.Account;
+import lombok.Getter;
+import lombok.Setter;
 import org.poo.bank.Bank;
-import org.poo.bank.Card;
 import org.poo.bank.User;
+import org.poo.bank.Account;
+import org.poo.bank.Card;
+import org.poo.bank.Transaction;
 import org.poo.commands.CommandStrategy;
+import org.poo.utils.Search;
 
-public class CreateCardCommand implements CommandStrategy {
-    String accountIBAN;
-    String email;
-    int timestamp;
+import java.util.List;
 
-    public CreateCardCommand(String accountIBAN, String email, int timestamp) {
+@Getter @Setter
+public class CreateCardCommand implements CommandStrategy, Search {
+    private String accountIBAN;
+    private String email;
+    private int timestamp;
+
+    public CreateCardCommand(final String accountIBAN, final String email, final int timestamp) {
         this.accountIBAN = accountIBAN;
         this.email = email;
         this.timestamp = timestamp;
     }
 
-    public void execute(ArrayNode output, ObjectMapper objectMapper){
-        Bank bank = Bank.getInstance();
-        // find email in users list
-        User correctUser = null;
-        for (User user : bank.getUsers()) {
-            if (user.getEmail().equals(email)) {
-                correctUser = user;
-                break;
-            }
-        }
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
+    @Override
+    public List<User> getUsers() {
+        return Bank.getInstance().getUsers();
+    }
+
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
+        User correctUser = findUserByEmail(email);
+        Card newCard = null;
         if (correctUser == null) {
-            System.err.println("User not found: " + email);
+            return;
         } else {
-            // find IBAN in correctUser accounts list
             boolean found = false;
             for (int i = 0; i < correctUser.getAccounts().size(); i++) {
-                if (correctUser.getAccounts().get(i).getIBAN().equals(accountIBAN)) {
+                if (correctUser.getAccounts().get(i).getIban().equals(accountIBAN)) {
                     Account account = correctUser.getAccounts().get(i);
-                    account.getCards().add(new Card());
+                    newCard = new Card(account);
+                    account.getCards().add(newCard);
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                System.err.println("Account not found: " + accountIBAN);
+                correctUser.logTransaction(Transaction.builder()
+                        .description("Account not found")
+                        .email(email)
+                        .timestamp(timestamp)
+                        .build());
+                return;
             }
         }
+        correctUser.logTransaction(Transaction.builder()
+                .description("New card created")
+                .accountIBAN(accountIBAN)
+                .card(newCard.getCardNumber())
+                .cardHolder(newCard.getAccount().getUser().getEmail())
+                .email(email)
+                .timestamp(timestamp)
+                .silentIBAN(accountIBAN)
+                .build());
     }
 }

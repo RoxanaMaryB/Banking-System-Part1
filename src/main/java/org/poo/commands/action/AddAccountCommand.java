@@ -4,39 +4,59 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.bank.Account;
 import org.poo.bank.Bank;
+import org.poo.bank.SavingsAccount;
 import org.poo.bank.User;
+import org.poo.bank.Transaction;
 import org.poo.commands.CommandStrategy;
+import org.poo.utils.Search;
 
-public class AddAccountCommand implements CommandStrategy {
-    String email;
-    String currency;
-    String accountType;
-    int timestamp;
+import java.util.List;
 
-    public AddAccountCommand(String email, String currency, String accountType, int timestamp) {
+public class AddAccountCommand implements CommandStrategy, Search {
+    private String email;
+    private String currency;
+    private String accountType;
+    private int timestamp;
+
+    public AddAccountCommand(final String email, final String currency, final String accountType,
+                             final int timestamp) {
         this.email = email;
         this.currency = currency;
         this.accountType = accountType;
         this.timestamp = timestamp;
     }
 
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
-        Bank bank = Bank.getInstance();
-        // find email in users list
-        User correctUser = null;
-        for (User user : bank.getUsers()) {
-            if (user.getEmail().equals(email)) {
-                correctUser = user;
-                break;
-            }
-        }
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
+    @Override
+    public List<User> getUsers() {
+        return Bank.getInstance().getUsers();
+    }
+
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
+        User correctUser = findUserByEmail(email);
         if (correctUser == null) {
-            System.err.println("User not found: " + email);
             return;
         }
-
-        // add account to user
-        Account newAccount = new Account(currency, accountType, timestamp);
+        Account newAccount;
+        if (accountType.equals("savings")) {
+            newAccount = new SavingsAccount(currency, correctUser, timestamp);
+        } else {
+            newAccount = new Account(currency, accountType, correctUser, timestamp);
+        }
         correctUser.getAccounts().add(newAccount);
+        correctUser.logTransaction(Transaction.builder()
+                .description("New account created")
+                .email(email)
+                .timestamp(timestamp)
+                .silentIBAN(newAccount.getIban())
+                .build());
     }
 }
