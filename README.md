@@ -1,4 +1,4 @@
-# Proiect etapa 1
+# Project stage 1
 ## Simplified banking system
 
 The project is a simplified banking system that allows the user to:
