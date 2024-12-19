@@ -2,21 +2,27 @@ package org.poo.commands.action;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.bank.*;
+import org.poo.bank.Account;
+import org.poo.bank.Bank;
+import org.poo.bank.Transaction;
+import org.poo.bank.User;
+import org.poo.bank.CurrencyConverter;
 import org.poo.commands.CommandStrategy;
 import org.poo.utils.Search;
 
 import java.util.List;
 
 public class SendMoneyCommand implements CommandStrategy, Search {
-    String senderIBAN;
-    String receiverIBAN;
-    double amount;
-    String description;
-    String email;
-    int timestamp;
+    private String senderIBAN;
+    private String receiverIBAN;
+    private double amount;
+    private String description;
+    private String email;
+    private int timestamp;
 
-    public SendMoneyCommand(String senderIBAN, String receiverIBAN, double amount, String description, String email, int timestamp) {
+    public SendMoneyCommand(final String senderIBAN, final String receiverIBAN,
+                            final double amount, final String description, final String email,
+                            final int timestamp) {
         this.senderIBAN = senderIBAN;
         this.receiverIBAN = receiverIBAN;
         this.amount = amount;
@@ -25,24 +31,31 @@ public class SendMoneyCommand implements CommandStrategy, Search {
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
     }
 
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         Account sender = findAccountByIBAN(senderIBAN);
         Account receiver = findAccountByIBAN(receiverIBAN);
-        if(receiver == null) {
+        if (receiver == null) {
             receiver = findAccountByAlias(receiverIBAN);
         }
         if (sender == null) {
-            System.err.println("Sender account not found: " + senderIBAN);
             return;
         }
         if (receiver == null) {
-            System.err.println("Receiver account not found: " + receiverIBAN);
             return;
         }
 
@@ -57,12 +70,15 @@ public class SendMoneyCommand implements CommandStrategy, Search {
         }
 
         sender.setBalance(sender.getBalance() - amount);
-        CurrencyConverter converter = new CurrencyConverter(Bank.getInstance().getExchangeRates());
-        double amountInReceiverCurrency = converter.convertCurrency(amount, sender.getCurrency(), receiver.getCurrency());
+        CurrencyConverter converter = CurrencyConverter.getInstance(Bank.getInstance().
+                getExchangeRates());
+        double amountInReceiverCurrency = converter.convertCurrency(amount, sender.getCurrency(),
+                receiver.getCurrency());
         receiver.setBalance(receiver.getBalance() + amountInReceiverCurrency);
 
         String amountWithCurrencySender = amount + " " + sender.getCurrency();
-        String amountWithCurrencyReceiver = amountInReceiverCurrency + " " + receiver.getCurrency();
+        String amountWithCurrencyReceiver = amountInReceiverCurrency + " "
+                + receiver.getCurrency();
 
         sender.getUser().logTransaction(Transaction.builder()
                 .description(description)

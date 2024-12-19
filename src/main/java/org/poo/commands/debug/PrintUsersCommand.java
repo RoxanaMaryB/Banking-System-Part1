@@ -10,12 +10,17 @@ import org.poo.commands.CommandStrategy;
 public class PrintUsersCommand implements CommandStrategy {
     private final int timestamp;
 
-    public PrintUsersCommand(int timestamp) {
+    public PrintUsersCommand(final int timestamp) {
         this.timestamp = timestamp;
     }
 
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         Bank bank = Bank.getInstance();
         ArrayNode usersArray = objectMapper.createArrayNode();
         for (User user : bank.getUsers()) {
@@ -27,13 +32,14 @@ public class PrintUsersCommand implements CommandStrategy {
                 ArrayNode cardsArray = objectMapper.createArrayNode();
                 for (int j = 0; j < user.getAccounts().get(i).getCards().size(); j++) {
                     ObjectNode cardNode = objectMapper.createObjectNode();
-                    cardNode.put("cardNumber", user.getAccounts().get(i).getCards().get(j).getCardNumber());
+                    cardNode.put("cardNumber", user.getAccounts().get(i).getCards().get(j).
+                            getCardNumber());
                     cardNode.put("status", user.getAccounts().get(i).getCards().get(j).getStatus());
                     cardsArray.add(cardNode);
                 }
                 accountNode.set("cards", cardsArray);
                 accountNode.put("currency", user.getAccounts().get(i).getCurrency());
-                accountNode.put("IBAN", user.getAccounts().get(i).getIBAN());
+                accountNode.put("IBAN", user.getAccounts().get(i).getIban());
                 accountNode.put("type", user.getAccounts().get(i).getType());
                 accountsArray.add(accountNode);
             }

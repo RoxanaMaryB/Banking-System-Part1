@@ -20,20 +20,30 @@ public class ReportCommand implements CommandStrategy, Search {
     protected final String accountIBAN;
     protected final int timestamp;
 
-    public ReportCommand(int start, int end, String accountIBAN, int timestamp) {
+    public ReportCommand(final int start, final int end, final String accountIBAN,
+                         final int timestamp) {
         this.start = start;
         this.end = end;
         this.accountIBAN = accountIBAN;
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
     }
 
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
         if (account == null) {
             ObjectNode commandOutput = objectMapper.createObjectNode();
@@ -55,7 +65,14 @@ public class ReportCommand implements CommandStrategy, Search {
         output.add(commandOutput);
     }
 
-    public void noAccountFound(ArrayNode output, ObjectMapper objectMapper, ObjectNode commandOutput) {
+    /**
+     * Method to add a no account found message to the output
+     * @param output
+     * @param objectMapper
+     * @param commandOutput
+     */
+    public void noAccountFound(final ArrayNode output, final ObjectMapper objectMapper,
+                               final ObjectNode commandOutput) {
         ObjectNode noAccount = objectMapper.createObjectNode();
         noAccount.put("description", "Account not found");
         noAccount.put("timestamp", timestamp);
@@ -64,7 +81,14 @@ public class ReportCommand implements CommandStrategy, Search {
         output.add(commandOutput);
     }
 
-    public void noUserFound(ArrayNode output, ObjectMapper objectMapper, ObjectNode commandOutput) {
+    /**
+     * Method to add a no user found message to the output
+     * @param output
+     * @param objectMapper
+     * @param commandOutput
+     */
+    public void noUserFound(final ArrayNode output, final ObjectMapper objectMapper,
+                            final ObjectNode commandOutput) {
         ObjectNode noUser = objectMapper.createObjectNode();
         noUser.put("description", "User not found");
         noUser.put("timestamp", timestamp);
@@ -73,21 +97,36 @@ public class ReportCommand implements CommandStrategy, Search {
         output.add(commandOutput);
     }
 
-    public boolean checkValidTransaction(Transaction transaction) {
-        return transaction.getSilentIBAN() != null && transaction.getSilentIBAN().equals(accountIBAN) &&
-                transaction.getTimestamp() >= start && transaction.getTimestamp() <= end;
+    /**
+     * Method to check if a transaction is valid for the report
+     * @param transaction
+     * @return
+     */
+    public boolean checkValidTransaction(final Transaction transaction) {
+        return transaction.getSilentIBAN() != null && transaction.getSilentIBAN().
+                equals(accountIBAN) && transaction.getTimestamp() >= start
+                && transaction.getTimestamp() <= end;
     }
 
-    public ObjectNode formReport(ObjectMapper objectMapper, Account account, List<Transaction> transactions) {
+    /**
+     * Method to form the report and add it to the output
+     * @param objectMapper
+     * @param account
+     * @param transactions
+     * @return
+     */
+    public ObjectNode formReport(final ObjectMapper objectMapper, final Account account,
+                                 final List<Transaction> transactions) {
         transactions.sort(Comparator.comparingInt(Transaction::getTimestamp));
         ObjectNode report = objectMapper.createObjectNode();
-        report.put("IBAN", account.getIBAN());
+        report.put("IBAN", account.getIban());
         report.put("balance", account.getBalance());
         report.put("currency", account.getCurrency());
         ArrayNode transactionsArray = objectMapper.createArrayNode();
         for (Transaction transaction : transactions) {
             if (checkValidTransaction(transaction)) {
-                ObjectNode transactionNode = TransactionsUtils.createTransactionNode(objectMapper, transaction);
+                ObjectNode transactionNode = TransactionsUtils.createTransactionNode(objectMapper,
+                        transaction);
                 transactionsArray.add(transactionNode);
             }
         }

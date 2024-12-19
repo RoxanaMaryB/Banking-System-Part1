@@ -2,39 +2,53 @@ package org.poo.commands.action;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.bank.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.poo.bank.Bank;
+import org.poo.bank.User;
+import org.poo.bank.Account;
+import org.poo.bank.Card;
+import org.poo.bank.Transaction;
 import org.poo.commands.CommandStrategy;
 import org.poo.utils.Search;
 
 import java.util.List;
 
+@Getter @Setter
 public class CreateCardCommand implements CommandStrategy, Search {
-    String accountIBAN;
-    String email;
-    int timestamp;
+    private String accountIBAN;
+    private String email;
+    private int timestamp;
 
-    public CreateCardCommand(String accountIBAN, String email, int timestamp) {
+    public CreateCardCommand(final String accountIBAN, final String email, final int timestamp) {
         this.accountIBAN = accountIBAN;
         this.email = email;
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
     }
 
-    public void execute(ArrayNode output, ObjectMapper objectMapper){
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         User correctUser = findUserByEmail(email);
         Card newCard = null;
         if (correctUser == null) {
-            System.err.println("User not found: " + email);
             return;
         } else {
-            // find IBAN in correctUser accounts list
             boolean found = false;
             for (int i = 0; i < correctUser.getAccounts().size(); i++) {
-                if (correctUser.getAccounts().get(i).getIBAN().equals(accountIBAN)) {
+                if (correctUser.getAccounts().get(i).getIban().equals(accountIBAN)) {
                     Account account = correctUser.getAccounts().get(i);
                     newCard = new Card(account);
                     account.getCards().add(newCard);

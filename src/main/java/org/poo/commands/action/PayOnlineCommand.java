@@ -3,23 +3,28 @@ package org.poo.commands.action;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.bank.*;
+import org.poo.bank.Account;
+import org.poo.bank.Bank;
+import org.poo.bank.Transaction;
+import org.poo.bank.User;
+import org.poo.bank.Card;
+import org.poo.bank.CurrencyConverter;
 import org.poo.commands.CommandStrategy;
 import org.poo.utils.Search;
-
 import java.util.List;
 
 public class PayOnlineCommand implements CommandStrategy, Search {
-    String cardNumber;
-    double amount;
-    String currency;
-    int timestamp;
-    String description;
-    String commerciant;
-    String email;
+    private String cardNumber;
+    private double amount;
+    private String currency;
+    private int timestamp;
+    private String description;
+    private String commerciant;
+    private String email;
 
-    public PayOnlineCommand(String cardNumber, double amount, String currency, String description, String commerciant,
-                            String email, int timestamp) {
+    public PayOnlineCommand(final String cardNumber, final double amount,
+                            final String currency, final String description,
+                            final String commerciant, final String email, final int timestamp) {
         this.cardNumber = cardNumber;
         this.amount = amount;
         this.currency = currency;
@@ -29,24 +34,30 @@ public class PayOnlineCommand implements CommandStrategy, Search {
         this.email = email;
     }
 
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
     }
 
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         User correctUser = findUserByEmail(email);
         if (correctUser == null) {
-            System.err.println("User not found: " + email);
             return;
         }
-        // find cardNumber in correctUser's accounts
         boolean found = false;
         Account correctAccount = null;
         Card correctCard = null;
         for (Account account : correctUser.getAccounts()) {
-            // find cardNumber in account's cards
             for (int i = 0; i < account.getCards().size(); i++) {
                 if (account.getCards().get(i).getCardNumber().equals(cardNumber)) {
                     correctCard = account.getCards().get(i);
@@ -56,7 +67,7 @@ public class PayOnlineCommand implements CommandStrategy, Search {
                 }
             }
         }
-        if (!found) { // add error transaction to correctUser's transactions
+        if (!found) {
             ObjectNode commandOutput = objectMapper.createObjectNode();
             commandOutput.put("command", "payOnline");
             Card.cardNotFound(output, objectMapper, commandOutput, timestamp);
@@ -70,11 +81,13 @@ public class PayOnlineCommand implements CommandStrategy, Search {
                     .build());
             return;
         }
-        CurrencyConverter converter = new CurrencyConverter(Bank.getInstance().getExchangeRates());
+        CurrencyConverter converter = CurrencyConverter.getInstance(Bank.getInstance()
+                .getExchangeRates());
         boolean insufficientFunds = true;
         double convertedAmount = amount;
         if (!correctAccount.getCurrency().equals(currency)) {
-            convertedAmount = converter.convertCurrency(amount, currency, correctAccount.getCurrency());
+            convertedAmount = converter.convertCurrency(amount, currency,
+                    correctAccount.getCurrency());
         }
         if (correctAccount.getBalance() - convertedAmount >= 0) {
             correctAccount.setBalance(correctAccount.getBalance() - convertedAmount);
@@ -92,7 +105,7 @@ public class PayOnlineCommand implements CommandStrategy, Search {
                 .description("Card payment")
                 .commerciant(commerciant)
                 .email(email)
-                .silentIBAN(correctAccount.getIBAN())
+                .silentIBAN(correctAccount.getIban())
                 .amountDouble(convertedAmount)
                 .timestamp(timestamp)
                 .build());

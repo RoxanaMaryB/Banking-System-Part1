@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 public class NoCommand implements CommandStrategy {
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         // No action
     }
 }

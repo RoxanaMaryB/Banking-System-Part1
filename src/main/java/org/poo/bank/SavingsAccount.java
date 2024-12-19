@@ -7,7 +7,7 @@ import lombok.Setter;
 public class SavingsAccount extends Account {
     private double interestRate = 0;
 
-    public SavingsAccount(String currency, User user, int timestamp) {
+    public SavingsAccount(final String currency, final User user, final int timestamp) {
         super(currency, "savings", user, timestamp);
         this.setType("savings");
     }

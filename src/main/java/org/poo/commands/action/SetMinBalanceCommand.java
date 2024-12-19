@@ -12,23 +12,33 @@ import org.poo.utils.Search;
 import java.util.List;
 
 public class SetMinBalanceCommand implements CommandStrategy, Search {
-    String accountIBAN;
-    double minBalance;
-    int timestamp;
+    private String accountIBAN;
+    private double minBalance;
+    private int timestamp;
 
-    public SetMinBalanceCommand(String accountIBAN, double minBalance, int timestamp) {
+    public SetMinBalanceCommand(final String accountIBAN, final double minBalance,
+                                final int timestamp) {
         this.accountIBAN = accountIBAN;
         this.minBalance = minBalance;
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
     }
 
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
         if (account != null) {
             account.setMinBalance(minBalance);
@@ -38,8 +48,6 @@ public class SetMinBalanceCommand implements CommandStrategy, Search {
                     .timestamp(timestamp)
                     .silentIBAN(accountIBAN)
                     .build());
-        } else {
-            System.err.println("Account not found: " + accountIBAN);
         }
     }
 }

@@ -11,26 +11,34 @@ import org.poo.utils.Search;
 import java.util.List;
 
 public class AddFundsCommand implements CommandStrategy, Search {
-    String accountIBAN;
-    double amount;
-    int timestamp;
+    private String accountIBAN;
+    private double amount;
+    private int timestamp;
 
-    public AddFundsCommand(String accountIBAN, double amount, int timestamp) {
+    public AddFundsCommand(final String accountIBAN, final double amount, final int timestamp) {
         this.accountIBAN = accountIBAN;
         this.amount = amount;
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
     }
 
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
         if (account == null) {
-            System.err.println("Account not found: " + accountIBAN);
             return;
         }
 

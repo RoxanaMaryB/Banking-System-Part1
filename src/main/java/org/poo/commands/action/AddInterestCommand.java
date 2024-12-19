@@ -13,21 +13,30 @@ import org.poo.utils.Search;
 import java.util.List;
 
 public class AddInterestCommand implements CommandStrategy, Search {
-    String accountIBAN;
-    int timestamp;
+    private String accountIBAN;
+    private int timestamp;
 
-    public AddInterestCommand(String accountIBAN, int timestamp) {
+    public AddInterestCommand(final String accountIBAN, final int timestamp) {
         this.accountIBAN = accountIBAN;
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
     }
 
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         Account account = findAccountByIBAN(accountIBAN);
         if (account.getType().equals("savings")) {
             double oldBalance = account.getBalance();

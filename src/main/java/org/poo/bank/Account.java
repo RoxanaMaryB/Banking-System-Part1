@@ -10,49 +10,60 @@ import static org.poo.utils.Utils.generateIBAN;
 
 @Getter @Setter
 public class Account {
-    double balance;
-    List<Card> cards;
-    String currency;
-    String IBAN;
-    String type;
-    int timestampCreated;
-    double minBalance = 0;
-    String alias;
-    User user;
+    private static final double WARNING_THRESHOLD = 30.0;
 
-    public Account(String currency, String type, User user, int timestamp) {
+    private double balance;
+    private List<Card> cards;
+    private String currency;
+    private String iban;
+    private String type;
+    private int timestampCreated;
+    private double minBalance = 0;
+    private String alias;
+    private User user;
+
+    public Account(final String currency, final String type, final User user, final int timestamp) {
         this.balance = 0;
         this.cards = new ArrayList<>();
         this.currency = currency;
         this.type = type;
-        this.IBAN = generateIBAN();
+        this.iban = generateIBAN();
         this.user = user;
         this.timestampCreated = timestamp;
         this.alias = null;
     }
 
-    public void updateCardStatus(int timestamp) {
+    /**
+     * This method checks if the account balance is lower than the minimum balance or close
+     * enough to it to send a warning to the user.
+     * @param timestamp
+     */
+    public void updateCardStatus(final int timestamp) {
         if (this.getBalance() <= minBalance) {
             for (Card card : this.getCards()) {
                 card.setStatus("frozen");
             }
             user.logTransaction(Transaction.builder()
-                    .description("You have reached the minimum amount of funds, the card will be frozen")
+                    .description("You have reached the minimum amount of funds, "
+                            + "the card will be frozen")
                     .timestamp(timestamp)
-                    .silentIBAN(IBAN)
+                    .silentIBAN(iban)
                     .build());
-        } else if (balance - minBalance <= 30) {
+        } else if (balance - minBalance <= WARNING_THRESHOLD) {
             for (Card card : this.getCards()) {
                 card.setStatus("warning");
             }
             user.logTransaction(Transaction.builder()
                     .description("Warning! You almost reached the minimum amount of funds")
                     .timestamp(timestamp)
-                    .silentIBAN(IBAN)
+                    .silentIBAN(iban)
                     .build());
         }
     }
 
+    /**
+     * This method deletes the account from the user's account list.
+     */
     public void deleteAccount() {
         user.getAccounts().remove(this);
     }

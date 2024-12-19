@@ -8,16 +8,20 @@ import static org.poo.utils.Utils.generateCardNumber;
 @Getter @Setter
 public class OneTimeCard extends Card {
 
-    public OneTimeCard(Account account) {
+    public OneTimeCard(final Account account) {
         super(account);
     }
 
-    public void changeIfOneTime(int timestamp) {
+    /**
+     * Change the card number if the card is one time
+     * @param timestamp
+     */
+    public void changeIfOneTime(final int timestamp) {
         // add transaction of card delete and create new card
         User user = this.getAccount().getUser();
         user.logTransaction(Transaction.builder()
-                .accountIBAN(account.getIBAN())
-                .card(cardNumber)
+                .accountIBAN(this.getAccount().getIban())
+                .card(this.getCardNumber())
                 .cardHolder(user.getEmail())
                 .description("The card has been destroyed")
                 .email(user.getEmail())
@@ -28,8 +32,8 @@ public class OneTimeCard extends Card {
 
         user.logTransaction(Transaction.builder()
                 .description("New card created")
-                .accountIBAN(account.getIBAN())
-                .card(cardNumber)
+                .accountIBAN(this.getAccount().getIban())
+                .card(this.getCardNumber())
                 .cardHolder(user.getEmail())
                 .email(user.getEmail())
                 .timestamp(timestamp)

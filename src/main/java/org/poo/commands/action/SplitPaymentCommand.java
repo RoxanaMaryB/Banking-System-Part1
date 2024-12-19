@@ -2,52 +2,68 @@ package org.poo.commands.action;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.bank.*;
+import org.poo.bank.Account;
+import org.poo.bank.Bank;
+import org.poo.bank.Transaction;
+import org.poo.bank.User;
+import org.poo.bank.CurrencyConverter;
 import org.poo.commands.CommandStrategy;
 import org.poo.utils.Search;
 
 import java.util.List;
 
 public class SplitPaymentCommand implements CommandStrategy, Search {
-    List<String> accountsForSplit;
-    String currency;
-    double amount;
-    int timestamp;
+    private List<String> accountsForSplit;
+    private String currency;
+    private double amount;
+    private int timestamp;
 
-    public SplitPaymentCommand(List<String> accountsForSplit, String currency, double amount, int timestamp) {
+    public SplitPaymentCommand(final List<String> accountsForSplit, final String currency,
+                               final double amount, final int timestamp) {
         this.accountsForSplit = accountsForSplit;
         this.currency = currency;
         this.amount = amount;
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
     }
 
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
-        // calculate the amount for each account
-        CurrencyConverter converter = new CurrencyConverter(Bank.getInstance().getExchangeRates());
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
+        CurrencyConverter converter = CurrencyConverter.getInstance(Bank.getInstance()
+                .getExchangeRates());
         double amountPerAccount = amount / accountsForSplit.size();
         boolean notEnoughMoney = false;
         Account brokeAccount = null;
         for (String accountIBAN : accountsForSplit) {
             Account account = findAccountByIBAN(accountIBAN);
-            double amountForAccount = converter.convertCurrency(amountPerAccount, currency, account.getCurrency());
-            if(account.getBalance() < amountForAccount) {
+            double amountForAccount = converter.convertCurrency(amountPerAccount, currency,
+                    account.getCurrency());
+            if (account.getBalance() < amountForAccount) {
                 notEnoughMoney = true;
                 brokeAccount = account;
             }
         }
-        if(notEnoughMoney) {
+        if (notEnoughMoney) {
             for (String accountIBAN : accountsForSplit) {
                 Account account = findAccountByIBAN(accountIBAN);
                 User user = account.getUser();
                 String description = String.format("Split payment of %.2f %s", amount, currency);
                 user.logTransaction(Transaction.builder()
-                        .error("Account " + brokeAccount.getIBAN() + " has insufficient funds for a split payment.")
+                        .error("Account " + brokeAccount.getIban()
+                                + " has insufficient funds for a split payment.")
                         .description(description)
                         .amountDouble(amountPerAccount)
                         .currency(currency)
@@ -63,7 +79,8 @@ public class SplitPaymentCommand implements CommandStrategy, Search {
         for (String accountIBAN : accountsForSplit) {
             Account account = findAccountByIBAN(accountIBAN);
             User user = account.getUser();
-            double amountForAccount = converter.convertCurrency(amountPerAccount, currency, account.getCurrency());
+            double amountForAccount = converter.convertCurrency(amountPerAccount, currency,
+                    account.getCurrency());
             String description = String.format("Split payment of %.2f %s", amount, currency);
             user.logTransaction(Transaction.builder()
                     .description(description)

@@ -26,20 +26,39 @@ public class Transaction {
     private String silentIBAN;
     private String error;
 
-    public void addField(ObjectNode node, String fieldName, String value) {
+    /**
+     * Add a string field to the JSON object if the value is not null
+     * @param node
+     * @param fieldName
+     * @param value
+     */
+    public void addField(final ObjectNode node, final String fieldName, final String value) {
         if (value != null) {
             node.put(fieldName, value);
         }
     }
 
     // who added this is evil
-    public void addDoubleField(ObjectNode node, String fieldName, double value) {
-        if(value != 0) {
+    /**
+     * Add a double field to the JSON object if the value is not null
+     * @param node
+     * @param fieldName
+     * @param value
+     */
+    public void addDoubleField(final ObjectNode node, final String fieldName, final double value) {
+        if (value != 0) {
             node.put(fieldName, value);
         }
     }
 
-    public void addListOfStrings(ObjectNode node, String fieldName, List<String> values) {
+    /**
+     * Add a string list field to the JSON object if the value is not null
+     * @param node
+     * @param fieldName
+     * @param values
+     */
+    public void addListOfStrings(final ObjectNode node, final String fieldName,
+                                 final List<String> values) {
         if (values != null) {
             ArrayNode arrayNode = node.putArray(fieldName);
             for (String value : values) {

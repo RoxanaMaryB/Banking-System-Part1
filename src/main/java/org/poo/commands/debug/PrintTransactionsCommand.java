@@ -17,27 +17,37 @@ public class PrintTransactionsCommand implements CommandStrategy, Search {
     private final String email;
     private final int timestamp;
 
-    public PrintTransactionsCommand(String email, int timestamp) {
+    public PrintTransactionsCommand(final String email, final int timestamp) {
         this.email = email;
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get all users in the bank, used for search interface
+     * @return List of users
+     */
     @Override
     public List<User> getUsers() {
         return Bank.getInstance().getUsers();
     }
 
+    /**
+     * Implementation of strategy pattern execute method
+     * @param output
+     * @param objectMapper
+     */
     @Override
-    public void execute(ArrayNode output, ObjectMapper objectMapper) {
+    public void execute(final ArrayNode output, final ObjectMapper objectMapper) {
         User user = findUserByEmail(email);
         List<Transaction> transactions = user.getTransactions();
         transactions.sort(Comparator.comparingInt(Transaction::getTimestamp));
         ArrayNode transactionsArray = objectMapper.createArrayNode();
         for (Transaction transaction : transactions) {
-            if(transaction.getEmail() == null || !transaction.getEmail().equals(email)) {
+            if (transaction.getEmail() == null || !transaction.getEmail().equals(email)) {
                 continue;
             }
-            ObjectNode transactionNode = TransactionsUtils.createTransactionNode(objectMapper, transaction);
+            ObjectNode transactionNode = TransactionsUtils.createTransactionNode(objectMapper,
+                    transaction);
             transactionsArray.add(transactionNode);
         }
         ObjectNode commandOutput = objectMapper.createObjectNode();
